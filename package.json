@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/PsimanUK/be-review-news#readme",
   "dependencies": {
-    "knex": "^0.20.14"
+    "knex": "^0.20.14",
+    "pg": "^8.0.2"
   },
   "devDependencies": {}
 }
