@@ -145,6 +145,90 @@ describe('makeRefObj', () => {
 
 describe('formatComments', () => {
   it('returns an empty array when passed an empty array', () => {
+    expect(formatComments([])).to.deep.equal([]);
+  });
+  it('returns an array with one correctly formatted comment when passed an array with one comment', () => {
+    const comment = [{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    }];
+    const refTable = { 'Making sense of Redux': 1 };
+    const output = formatComments(comment, refTable)
+    expect(output[0]).to.have.keys('article_id', 'author', 'votes', 'created_at', 'body');
+  });
+  it('converts UNIX time into a JavaScript date object', () => {
+    const comment = [{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    }];
+    const refTable = { 'Making sense of Redux': 1 };
+    const output = formatComments(comment, refTable)
 
+    expect(Object.prototype.toString.call(output[0].created_at)).to.deep.equal('[object Date]');
+  });
+  it('returns an array of formatted comments when passed an array of comments', () => {
+    const comments = [{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    },
+    {
+      body: 'Qui sunt sit voluptas repellendus sed. Voluptatem et repellat fugiat. Rerum doloribus eveniet quidem vero aut sint officiis. Dolor facere et et architecto vero qui et perferendis dolorem. Magni quis ratione adipisci error assumenda ut. Id rerum eos facere sit nihil ipsam officia aspernatur odio.',
+      belongs_to: '22 Amazing open source React projects',
+      created_by: 'grumpy19',
+      votes: 3,
+      created_at: 1504183900263,
+    },
+    {
+      body: 'Rerum voluptatem quam odio facilis quis illo unde. Ex blanditiis optio tenetur sunt. Cumque dolor ducimus et qui officia quasi non illum reiciendis.',
+      belongs_to: 'The People',
+      created_by: 'happyamy2016',
+      votes: 4,
+      created_at: 1467709215383,
+    }];
+    const refTable = { 'Making sense of Redux': 1, '22 Amazing open source React projects': 2, 'The People': 3 };
+    const output = formatComments(comments, refTable);
+    output.forEach((comment) => {
+      expect(comment).to.have.keys('article_id', 'author', 'votes', 'created_at', 'body');
+      expect(Object.prototype.toString.call(comment.created_at)).to.deep.equal('[object Date]');
+    });
+  });
+  it('does not mutate the original array', () => {
+    const input = [{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    }];
+    const refTable = { 'Making sense of Redux': 1 };
+    formatComments(input, refTable);
+    expect(input).to.deep.equal([{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    }]);
+  });
+  it('output array does not refer to the original array', () => {
+    const input = [{
+      body: 'Nobis consequatur animi. Ullam nobis quaerat voluptates veniam.',
+      belongs_to: 'Making sense of Redux',
+      created_by: 'grumpy19',
+      votes: 7,
+      created_at: 1478813209256,
+    }];
+    const refTable = { 'Making sense of Redux': 1 };
+    const output = formatComments(input, refTable);
+    expect(output).to.not.equal(input);
   });
 });
