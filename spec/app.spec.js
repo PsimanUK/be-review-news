@@ -20,12 +20,80 @@ describe('app', () => {
                         .get('/api/topics')
                         .expect(200)
                         .then((res) => {
-                            console.log(res.body.allTopics, '<-- all the topics');
-                            expect(res.body.allTopics.length).to.deep.equal(3);
-                            expect(typeof res.body.allTopics[0].slug).to.equal('string');
+
+                            expect(res.body.topics.length).to.deep.equal(3);
+                            expect(typeof res.body.topics[0].slug).to.equal('string');
+                        });
+                });
+                it('returns a 200 and the objects have the required keys', () => {
+                    return request(app)
+                        .get('/api/topics')
+                        .expect(200)
+                        .then((res) => {
+                            const { topics } = res.body;
+                            topics.forEach((topic) => {
+                                expect(topic).to.have.keys('slug', 'description');
+                            });
+                        });
+                });
+
+            });
+        });
+        describe('/user/:username', () => {
+            describe('GET', () => {
+                it('returns a 200 and an object on the key of user', () => {
+                    return request(app)
+                        .get('/api/users/lurker')
+                        .expect(200)
+                        .then((res) => {
+                            const { user } = res.body;
+                            expect(user.username).to.deep.equal('lurker');
+
+                        });
+                });
+                it('returns a 200 and the object contains the required keys', () => {
+                    return request(app)
+                        .get('/api/users/lurker')
+                        .expect(200)
+                        .then((res) => {
+                            const { user } = res.body;
+                            expect(user).to.have.keys('username', 'name', 'avatar_url');
+                        });
+                });
+                it('returns a 404 and an error message when passed an invalid username', () => {
+                    return request(app)
+                        .get('/api/users/INVALID')
+                        .expect(404)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Invalid Username!');
                         });
                 });
             });
+        });
+        describe.only('/articles/:article_id', () => {
+            describe('GET', () => {
+                it('returns an object with the required keys', () => {
+                    return request(app)
+                        .get('/api/articles/1')
+                        .expect(200)
+                        .then((res) => {
+                            const { article } = res.body;
+                            expect(article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                        });
+                });
+            });
+        });
+    });
+    describe('INVALID PATHS', () => {
+        it('returns a 404 and an error message is a request is made to an invalid endpoint', () => {
+            return request(app)
+                .get('/INVALID')
+                .expect(404)
+                .then((res) => {
+                    const { msg } = res.body;
+                    expect(msg).to.deep.equal('Invalid Path!');
+                });
         });
     });
 });
