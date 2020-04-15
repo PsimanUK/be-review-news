@@ -71,7 +71,7 @@ describe('app', () => {
                 });
             });
         });
-        describe.only('/articles/:article_id', () => {
+        describe('/articles/:article_id', () => {
             describe('GET', () => {
                 it('returns an object with the required keys', () => {
                     return request(app)
@@ -80,6 +80,24 @@ describe('app', () => {
                         .then((res) => {
                             const { article } = res.body;
                             expect(article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                        });
+                });
+                it('returns an object with a comment count greater than 1', () => {
+                    return request(app)
+                        .get('/api/articles/1')
+                        .expect(200)
+                        .then((res) => {
+                            const { article } = res.body;
+                            expect(article.comment_count).to.deep.equal('13');
+                        });
+                });
+                it('returns a 404 and an error message', () => {
+                    return request(app)
+                        .get('/api/articles/1414')
+                        .expect(404)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Invalid article_id!');
                         });
                 });
             });
