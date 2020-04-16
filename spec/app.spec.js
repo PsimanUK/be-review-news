@@ -313,7 +313,7 @@ describe('app', () => {
                         .get('/api/articles/1/comments?sort_by=fish&order=desc')
                         .expect(400)
                 });
-                it.only('returns a 200 and ascend array when passed an invalid order value', () => {
+                it('returns a 200 and ascend array when passed an invalid order value', () => {
                     return request(app)
                         .get('/api/articles/1/comments?sort_by=author&order=fish')
                         .expect(200)
@@ -324,6 +324,21 @@ describe('app', () => {
                 });
             });
 
+        });
+        describe('/api/articles', () => {
+            describe('GET', () => {
+                it.only('returns an array of article objects with the required keys', () => {
+                    return request(app)
+                        .get('/api/articles')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            articles.forEach((article) => {
+                                expect(article).to.have.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+                            });
+                        });
+                });
+            });
         });
     });
     describe('INVALID PATHS', () => {
