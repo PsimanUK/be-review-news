@@ -17,7 +17,10 @@ exports.updateArticleVotes = (articleId, votes) => {
         .returning('*')
 };
 
-exports.fetchCommentsByArticleId = () => {
+exports.fetchCommentsByArticleId = (article_id) => {
+    return connection('comments')
+        .select('*')
+        .where('article_id', '=', articleId)
 
 };
 
