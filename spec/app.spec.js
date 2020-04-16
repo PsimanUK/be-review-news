@@ -36,7 +36,6 @@ describe('app', () => {
                             });
                         });
                 });
-
             });
         });
         describe('/user/:username', () => {
@@ -91,13 +90,77 @@ describe('app', () => {
                             expect(article.comment_count).to.deep.equal('13');
                         });
                 });
-                it('returns a 404 and an error message', () => {
+                it('returns a 404 and an error message when passed a non-existant article_id', () => {
                     return request(app)
                         .get('/api/articles/1414')
                         .expect(404)
                         .then((res) => {
                             const { msg } = res.body;
-                            expect(msg).to.deep.equal('Invalid article_id!');
+                            expect(msg).to.deep.equal('Cannot find article for article_id 1414!');
+                        });
+                });
+                it('returns a 400 and an error message when passed a non-integer article_id', () => {
+                    return request(app)
+                        .get('/api/articles/article_id')
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Bad Request!');
+                        });
+                });
+            });
+            describe('PATCH', () => {
+                it('returns an article with the votes property increased when passed newVote object with a positive number', () => {
+                    return request(app)
+                        .patch('/api/articles/1')
+                        .send({ inc_votes: '1' })
+                        .expect(200)
+                        .then((res) => {
+                            const { votes } = res.body;
+                            expect(votes).to.deep.equal(101);
+                        });
+                });
+                it('returns an article with the votes property decreased when passed newVote object with a negative number', () => {
+                    return request(app)
+                        .patch('/api/articles/1')
+                        .send({ inc_votes: '-50' })
+                        .expect(200)
+                        .then((res) => {
+                            const { votes } = res.body;
+                            expect(votes).to.deep.equal(50);
+                        });
+                });
+                it('returns a 404 when trying to update a non-existant article', () => {
+                    return request(app)
+                        .patch('/api/articles/1414')
+                        .send({ inc_votes: '-50' })
+                        .expect(404)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
+                        });
+                });
+                it('returns a 400 when trying to update a non-existant article', () => {
+                    return request(app)
+                        .patch('/api/articles/1414')
+                        .send({ inc_votes: '-50' })
+                        .expect(404)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
+                        });
+                });
+            });
+        });
+        describe.only('/api/articles/:article_id/comments', () => {
+            describe('POST', () => {
+                it('returns a 201 and the posted comment with the required keys', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ username: 'lurker', body: 'I love it!' })
+                        .expect(201)
+                        .then((res) => {
+                            expect(res.body.comment).to.have.keys('comment_id', 'votes', 'created_at', 'author', 'body', 'article_id');
                         });
                 });
             });

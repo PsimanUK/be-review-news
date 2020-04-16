@@ -5,6 +5,8 @@ const apiRouter = require('./routes/api-router')
 
 const { handleCustomErrors, handlePsqlErrors, handle500s, handleInvalidPaths } = require('./errors/error-handlers');
 
+app.use(express.json());
+
 app.use('/api', apiRouter);
 
 app.use(handleInvalidPaths);

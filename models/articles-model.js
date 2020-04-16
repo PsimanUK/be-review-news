@@ -9,3 +9,22 @@ exports.fetchArticleById = (articleId) => {
         .where('articles.article_id', '=', articleId);
 
 };
+
+exports.updateArticleVotes = (articleId, votes) => {
+    return connection('articles')
+        .where('article_id', '=', articleId)
+        .increment('votes', votes)
+        .returning('*')
+};
+
+exports.insertComment = (articleId, comment) => {
+
+    const formattedComment = { article_id: articleId.toString(), author: comment.username, body: comment.body };
+    return connection('comments')
+        .insert(formattedComment)
+        .returning('*')
+        .then((res) => {
+
+            return res[0];
+        });
+};
