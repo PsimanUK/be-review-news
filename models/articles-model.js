@@ -17,12 +17,12 @@ exports.updateArticleVotes = (articleId, votes) => {
         .returning('*')
 };
 
-exports.fetchCommentsByArticleId = (article_id) => {
-    return connection('comments')
-        .select('*')
-        .where('article_id', '=', articleId)
+// exports.fetchCommentsByArticleId = (article_id) => {
+//     return connection('comments')
+//         .select('*')
+//         .where('article_id', '=', articleId)
 
-};
+// };
 
 exports.insertComment = (articleId, comment) => {
 

@@ -10,7 +10,7 @@ exports.handleCustomErrors = (err, req, res, next) => {
 exports.handlePsqlErrors = (err, req, res, next) => {
 
     const psqlErrorCodes = {
-        '22P02': { status: 400, msg: 'Bad Request!' }
+        '22P02': { status: 400, msg: 'Bad Request!' }, 23502: { status: 400, msg: 'Cannot create entry without the required data!' }
     }
 
     if (err.code in psqlErrorCodes) {

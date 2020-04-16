@@ -150,7 +150,7 @@ describe('app', () => {
                             expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
                         });
                 });
-                it.only('returns a 400 when trying to update without inc_votes in the body', () => {
+                it('returns a 400 when trying to update without inc_votes in the body', () => {
                     return request(app)
                         .patch('/api/articles/1')
                         .send({})
@@ -194,8 +194,61 @@ describe('app', () => {
                             expect(body).to.deep.equal('I love it!');
                         });
                 });
+                it('returns a 400 when passed an empty object', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({})
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Cannot create entry without the required data!');
+                        });
+                });
+                it('returns a 400 when passed an object without a body key', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ username: 'lurker' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Cannot create entry without the required data!');
+                        });
+                });
+                it('returns a 400 when passed an object without a username key', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ body: 'I love it!' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Cannot create entry without the required data!');
+                        });
+                });
+                it('returns a 400 when value is of the wrong data type', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ body: '1' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Cannot create entry without the required data!');
+                        });
+                });
+                it('returns a 400 and when passed an object with other columns in the table', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ votes: '1', article_id: '1' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Cannot create entry without the required data!');
+                        });
+                });
 
             });
+            // describe('GET', () => {
+            //     it('')
+            // });
 
         });
     });
