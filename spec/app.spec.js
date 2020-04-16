@@ -140,7 +140,7 @@ describe('app', () => {
                             expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
                         });
                 });
-                it('returns a 400 when trying to update a non-existant article', () => {
+                it('returns a 404 when trying to update a non-existant article', () => {
                     return request(app)
                         .patch('/api/articles/1414')
                         .send({ inc_votes: '-50' })
@@ -150,9 +150,29 @@ describe('app', () => {
                             expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
                         });
                 });
+                it.only('returns a 400 when trying to update without inc_votes in the body', () => {
+                    return request(app)
+                        .patch('/api/articles/1')
+                        .send({})
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Bad Request!');
+                        });
+                });
+                it('returns a 400 when trying to update with a non-integer for inc_votes', () => {
+                    return request(app)
+                        .patch('/api/articles/1')
+                        .send({ inc_votes: 'banana' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Bad Request!');
+                        });
+                });
             });
         });
-        describe.only('/api/articles/:article_id/comments', () => {
+        describe('/api/articles/:article_id/comments', () => {
             describe('POST', () => {
                 it('returns a 201 and the posted comment with the required keys', () => {
                     return request(app)
@@ -163,7 +183,20 @@ describe('app', () => {
                             expect(res.body.comment).to.have.keys('comment_id', 'votes', 'created_at', 'author', 'body', 'article_id');
                         });
                 });
+                it('returns a 201 and the returned comment to have the data passed', () => {
+                    return request(app)
+                        .post('/api/articles/1/comments')
+                        .send({ username: 'lurker', body: 'I love it!' })
+                        .expect(201)
+                        .then((res) => {
+                            const { author, body } = res.body.comment;
+                            expect(author).to.deep.equal('lurker');
+                            expect(body).to.deep.equal('I love it!');
+                        });
+                });
+
             });
+
         });
     });
     describe('INVALID PATHS', () => {

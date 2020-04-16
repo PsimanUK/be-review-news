@@ -17,6 +17,10 @@ exports.updateArticleVotes = (articleId, votes) => {
         .returning('*')
 };
 
+exports.fetchCommentsByArticleId = () => {
+
+};
+
 exports.insertComment = (articleId, comment) => {
 
     const formattedComment = { article_id: articleId.toString(), author: comment.username, body: comment.body };

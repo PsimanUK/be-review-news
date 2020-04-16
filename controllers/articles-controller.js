@@ -1,4 +1,4 @@
-const { fetchArticleById, updateArticleVotes, insertComment } = require('../models/articles-model')
+const { fetchArticleById, updateArticleVotes, insertComment, fetchCommentsByArticleId } = require('../models/articles-model')
 
 exports.sendArticleById = (req, res, next) => {
     const { article_id } = req.params;
@@ -21,9 +21,12 @@ exports.sendArticleById = (req, res, next) => {
 
 exports.ammendArticleVotes = (req, res, next) => {
     const { article_id } = req.params;
-    const { inc_votes } = req.body;
+    let { inc_votes } = req.body;
+    if (!req.body.inc_votes) inc_votes = null;
+
 
     updateArticleVotes(article_id, inc_votes)
+
         .then((article) => {
 
             if (article.length > 0) {
@@ -35,6 +38,16 @@ exports.ammendArticleVotes = (req, res, next) => {
         })
         .catch(next);
 
+};
+
+exports.sendCommentsByArticleId = (req, res, next) => {
+    const { article_id } = req.params;
+
+    fetchCommentsByArticleId(article_id)
+        .then((comments) => {
+            res.status(200).send({ comments });
+        })
+        .catch(next);
 };
 
 exports.postComment = (req, res, next) => {
