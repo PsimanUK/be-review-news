@@ -40,15 +40,17 @@ exports.ammendArticleVotes = (req, res, next) => {
 
 };
 
-// exports.sendCommentsByArticleId = (req, res, next) => {
-//     const { article_id } = req.params;
+exports.sendCommentsByArticleId = (req, res, next) => {
+    const { article_id } = req.params;
+    const { sort_by, order } = req.query;
 
-//     fetchCommentsByArticleId(article_id)
-//         .then((comments) => {
-//             res.status(200).send({ comments });
-//         })
-//         .catch(next);
-// };
+    fetchCommentsByArticleId(article_id, { sort_by, order })
+        .then((comments) => {
+            if (comments.length > 0) res.status(200).send({ comments });
+            else return Promise.reject({ status: 404, msg: 'Invalid article_id!' });
+        })
+        .catch(next);
+};
 
 exports.postComment = (req, res, next) => {
 

@@ -1,6 +1,8 @@
 process.env.NODE_ENV = 'test';
 
-const { expect } = require('chai');
+const chai = require('chai');
+const { expect } = chai;
+chai.use(require('chai-sorted'));
 
 const request = require('supertest');
 
@@ -246,9 +248,81 @@ describe('app', () => {
                 });
 
             });
-            // describe('GET', () => {
-            //     it('')
-            // });
+            describe('GET', () => {
+                it('returns a 200 and an array of comment objects with the required keys', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            comments.forEach((comment) => {
+                                expect(comment).to.have.keys('comment_id', 'votes', 'created_at', 'author', 'body')
+                            });
+
+                        });
+                });
+                it('returns a 200 and an array with more than one comment object', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments.length).to.deep.equal(13)
+
+                        });
+                });
+                it('returns a 404 when passed a non-existant article_id', () => {
+                    return request(app)
+                        .get('/api/articles/360/comments')
+                        .expect(404)
+                });
+                it('returns a 400 when passed a non-integer article_id', () => {
+                    return request(app)
+                        .get('/api/articles/cat/comments')
+                        .expect(400)
+                });
+                it('returns the array of objects sorted by created_at as its default', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments).to.be.sortedBy('created_at');
+                        });
+                });
+                it('returns the array of objects sorted by the requested column', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?sort_by=author')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments).to.be.sortedBy('author');
+                        });
+                });
+                it('returns the array of objects ordered dsecending when passed an order value', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?sort_by=author&order=desc')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments).to.be.descendingBy('author');
+                        });
+                });
+                it('returns a 400 when passed an non-existant column to sort by', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?sort_by=fish&order=desc')
+                        .expect(400)
+                });
+                it.only('returns a 200 and ascend array when passed an invalid order value', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments?sort_by=author&order=fish')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments).to.be.ascendingBy('author');
+                        });
+                });
+            });
 
         });
     });

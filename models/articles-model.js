@@ -17,12 +17,14 @@ exports.updateArticleVotes = (articleId, votes) => {
         .returning('*')
 };
 
-// exports.fetchCommentsByArticleId = (article_id) => {
-//     return connection('comments')
-//         .select('*')
-//         .where('article_id', '=', articleId)
+exports.fetchCommentsByArticleId = (articleId, queries) => {
+    const { sort_by, order } = queries;
+    return connection('comments')
+        .select('comment_id', 'votes', 'created_at', 'author', 'body')
+        .where('article_id', '=', articleId)
+        .orderBy(sort_by || 'created_at', order || 'asc');
 
-// };
+};
 
 exports.insertComment = (articleId, comment) => {
 
