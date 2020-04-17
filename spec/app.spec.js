@@ -442,6 +442,7 @@ describe('app', () => {
                 it('returns a 200 an updated comment which has the required keys', () => {
                     return request(app)
                         .patch('/api/comments/1')
+                        .send({ inc_votes: 1 })
                         .expect(200)
                         .then((res) => {
                             const { comment } = res.body;
@@ -451,7 +452,7 @@ describe('app', () => {
                 it('returns a comment with its voted increased by 1', () => {
                     return request(app)
                         .patch('/api/comments/1')
-                        .send({ votes: 1 })
+                        .send({ inc_votes: 1 })
                         .expect(200)
                         .then((res) => {
                             const { comment } = res.body;
@@ -461,24 +462,50 @@ describe('app', () => {
                 it('returns a comment with its voted decreased by 1', () => {
                     return request(app)
                         .patch('/api/comments/1')
-                        .send({ votes: -1 })
+                        .send({ inc_votes: -1 })
                         .expect(200)
                         .then((res) => {
                             const { comment } = res.body;
                             expect(comment.votes).to.deep.equal(15);
                         });
                 });
-                it.only('returns a 404 when trying to update using an invalid comment_id', () => {
+                it('returns a 404 when trying to update using an invalid comment_id', () => {
                     return request(app)
                         .patch('/api/comments/300')
-                        .send({ votes: -1 })
+                        .send({ inc_votes: -1 })
                         .expect(404)
                         .then((res) => {
                             const { msg } = res.body;
                             expect(msg).to.deep.equal('Cannot find a comment with comment_id 300!');
                         });
                 });
+                it('returns a 400 when trying to update votes using a non-integer value', () => {
+                    return request(app)
+                        .patch('/api/comments/1')
+                        .send({ inc_votes: 'cats' })
+                        .expect(400)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Bad Request!');
+                        });
+                });
+                it('returns a 400 when trying to update something other than votes', () => {
+                    return request(app)
+                        .patch('/api/comments/1')
+                        .send({ created_at: 1 })
+                        .expect(400)
+                        .then(() => {
+                            return connection('comments')
+                                .select('*')
+                                .where('comment_id', '=', '1')
+                                .then((res) => {
+                                    expect(res[0].created_at.getTime()).to.deep.equal(1511354163389)
+                                });
+
+                        });
+                });
             });
+
         });
     });
     describe('INVALID PATHS', () => {
