@@ -17,7 +17,7 @@ exports.handlePsqlErrors = (err, req, res, next) => {
 
     if (err.code in psqlErrorCodes) {
         const { status, msg } = psqlErrorCodes[err.code];
-        console.log(`I have found code ${err.code}.`)
+
         res.status(status).send({ msg: msg });
     } else {
         next(err);

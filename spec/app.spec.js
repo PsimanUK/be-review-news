@@ -118,7 +118,7 @@ describe('app', () => {
                         .send({ inc_votes: '1' })
                         .expect(200)
                         .then((res) => {
-                            const { votes } = res.body;
+                            const { votes } = res.body.article;
                             expect(votes).to.deep.equal(101);
                         });
                 });
@@ -128,7 +128,7 @@ describe('app', () => {
                         .send({ inc_votes: '-50' })
                         .expect(200)
                         .then((res) => {
-                            const { votes } = res.body;
+                            const { votes } = res.body.article;
                             expect(votes).to.deep.equal(50);
                         });
                 });
@@ -139,27 +139,25 @@ describe('app', () => {
                         .expect(404)
                         .then((res) => {
                             const { msg } = res.body;
-                            expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
+                            expect(msg).to.deep.equal(`Article does not exist!`);
                         });
                 });
-                it('returns a 404 when trying to update a non-existant article', () => {
-                    return request(app)
-                        .patch('/api/articles/1414')
-                        .send({ inc_votes: '-50' })
-                        .expect(404)
-                        .then((res) => {
-                            const { msg } = res.body;
-                            expect(msg).to.deep.equal(`Cannot find article 1414 to ammend vote!`);
-                        });
-                });
-                it('returns a 400 when trying to update without inc_votes in the body', () => {
+                it('returns a 200 when trying to update without information in the req.body', () => {
                     return request(app)
                         .patch('/api/articles/1')
                         .send({})
-                        .expect(400)
+                        .expect(200)
                         .then((res) => {
-                            const { msg } = res.body;
-                            expect(msg).to.deep.equal('Bad Request!');
+                            const { article } = res.body;
+                            expect(article).to.deep.equal({
+                                article_id: 1,
+                                title: 'Living in the shadow of a great man',
+                                topic: 'mitch',
+                                author: 'butter_bridge',
+                                body: 'I find this existence challenging',
+                                created_at: "2018-11-15T12:21:54.171Z",
+                                votes: 100,
+                            });
                         });
                 });
                 it('returns a 400 when trying to update with a non-integer for inc_votes', () => {
@@ -287,7 +285,16 @@ describe('app', () => {
                         .expect(200)
                         .then((res) => {
                             const { comments } = res.body;
-                            expect(comments).to.be.sortedBy('created_at');
+                            expect(comments).to.be.descendingBy('created_at');
+                        });
+                });
+                it('returns the array of object ordered by desc as its default', () => {
+                    return request(app)
+                        .get('/api/articles/1/comments')
+                        .expect(200)
+                        .then((res) => {
+                            const { comments } = res.body;
+                            expect(comments).to.be.descendingBy('created_at');
                         });
                 });
                 it('returns the array of objects sorted by the requested column', () => {
@@ -296,7 +303,7 @@ describe('app', () => {
                         .expect(200)
                         .then((res) => {
                             const { comments } = res.body;
-                            expect(comments).to.be.sortedBy('author');
+                            expect(comments).to.be.descendingBy('author');
                         });
                 });
                 it('returns the array of objects ordered dsecending when passed an order value', () => {
@@ -338,13 +345,13 @@ describe('app', () => {
                             });
                         });
                 });
-                it('returns an array of article objects sorted by created_at in ascending order', () => {
+                it('returns an array of article objects sorted by created_at in descending order', () => {
                     return request(app)
                         .get('/api/articles')
                         .expect(200)
                         .then((res) => {
                             const { articles } = res.body;
-                            expect(articles).to.be.ascendingBy('created_at');
+                            expect(articles).to.be.descendingBy('created_at');
 
                         });
                 });
@@ -354,7 +361,7 @@ describe('app', () => {
                         .expect(200)
                         .then((res) => {
                             const { articles } = res.body;
-                            expect(articles).to.be.ascendingBy('title');
+                            expect(articles).to.be.descendingBy('title');
 
                         });
                 });
@@ -370,12 +377,12 @@ describe('app', () => {
                 });
                 it('returns an array of article objects with only the passed author value', () => {
                     return request(app)
-                        .get('/api/articles?author=icellusedkars')
+                        .get('/api/articles?author=rogersop')
                         .expect(200)
                         .then((res) => {
                             const { articles } = res.body;
                             articles.forEach((article) => {
-                                expect(article.author).to.deep.equal('icellusedkars');
+                                expect(article.author).to.deep.equal('rogersop');
                             });
                         });
                 });
@@ -408,22 +415,22 @@ describe('app', () => {
                             expect(articles).to.be.ascendingBy('created_at');
                         });
                 });
-                it('returns a 404 when passed an author does not exist', () => {
+                it('returns a 200 and an empty array when passed an author does not exist', () => {
                     return request(app)
                         .get('/api/articles?author=bob')
-                        .expect(404)
+                        .expect(200)
                         .then((res) => {
-                            const { msg } = res.body;
-                            expect(msg).to.deep.equal('Cannot find any articles based on those search parameters!');
+                            const { articles } = res.body;
+                            expect(articles.length).to.deep.equal(0);
                         });
                 });
-                it('returns a 404 when passed an topic does not exist', () => {
+                it('returns a 200 an an empty array when passed an topic does not exist', () => {
                     return request(app)
                         .get('/api/articles?topic=bob')
-                        .expect(404)
+                        .expect(200)
                         .then((res) => {
-                            const { msg } = res.body;
-                            expect(msg).to.deep.equal('Cannot find any articles based on those search parameters!');
+                            const { articles } = res.body;
+                            expect(articles.length).to.deep.equal(0);
                         });
                 });
                 it('returns a 200 and all of the available articles when passed a filter value that is not allowed', () => {
@@ -527,10 +534,14 @@ describe('app', () => {
                                 });
                         });
                 });
-                it('returns a 204 when passed a non-existant comment_id to delete', () => {
+                it('returns a 404 when passed a non-existant comment_id to delete', () => {
                     return request(app)
                         .delete('/api/comments/1414')
-                        .expect(204)
+                        .expect(404)
+                        .then((res) => {
+                            const { msg } = res.body;
+                            expect(msg).to.deep.equal('Comment does not exist!')
+                        })
                 });
 
             });

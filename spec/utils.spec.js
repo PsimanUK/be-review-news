@@ -20,7 +20,7 @@ describe('formatDates', () => {
       created_at: 1500659650346,
     }];
     const output = formatDates(input);
-    expect(Object.prototype.toString.call(output[0].created_at)).to.deep.equal('[object Date]');
+    expect(output[0].created_at).to.be.instanceOf(Date);
   });
   it('returns an array of date formatted objects when passed an array with multiple objects', () => {
     const input = [{
@@ -48,10 +48,9 @@ describe('formatDates', () => {
       created_at: 1500659650346,
     }];
     const output = formatDates(input);
-    console.log(output);
     expect(output.length).to.deep.equal(3);
     output.forEach((obj) => {
-      expect(Object.prototype.toString.call(obj.created_at)).to.deep.equal('[object Date]');
+      expect(obj.created_at).to.be.instanceOf(Date);
     });
   });
   it('does not mutate the original array', () => {

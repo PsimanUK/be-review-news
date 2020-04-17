@@ -1,14 +1,13 @@
 const connection = require('../connection');
 
-exports.fetchAllArticles = ({ sort_by, order, author, topic }) => {
-    console.log('Using fetchAllArticles...');
+exports.fetchAllArticles = (sort_by, order, author, topic) => {
 
     return connection('articles')
         .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes')
         .count('comment_id as comment_count')
         .leftJoin('comments', 'articles.article_id', 'comments.article_id')
         .groupBy('articles.article_id')
-        .orderBy(sort_by || 'articles.created_at', order || 'asc')
+        .orderBy(sort_by || 'articles.created_at', order || 'desc')
         .modify((authorQuery) => {
             if (author !== undefined) authorQuery.where('articles.author', '=', author)
         })
@@ -27,30 +26,32 @@ exports.fetchArticleById = (articleId) => {
 
 };
 
-exports.updateArticleVotes = (articleId, votes) => {
+exports.articleExists = (articleId) => {
     return connection('articles')
+        .select('*')
         .where('article_id', '=', articleId)
-        .increment('votes', votes)
-        .returning('*')
-};
-
-exports.fetchCommentsByArticleId = (articleId, queries) => {
-    const { sort_by, order } = queries;
-    return connection('comments')
-        .select('comment_id', 'votes', 'created_at', 'author', 'body')
-        .where('article_id', '=', articleId)
-        .orderBy(sort_by || 'created_at', order || 'asc');
-
-};
-
-exports.insertComment = (articleId, comment) => {
-
-    const formattedComment = { article_id: articleId.toString(), author: comment.username, body: comment.body };
-    return connection('comments')
-        .insert(formattedComment)
         .returning('*')
         .then((res) => {
-
             return res[0];
-        });
+        })
+};
+
+exports.updateArticleVotes = (articleId, votes) => {
+    return this.articleExists(articleId).then((res) => {
+
+        if (res && votes !== null) {
+            return connection('articles')
+                .where('article_id', '=', articleId)
+                .increment('votes', votes)
+                .returning('*')
+        } else if (votes === null) {
+            return connection('articles')
+                .where('article_id', '=', articleId)
+                .returning('*')
+        } else {
+            return Promise.reject({ status: 404, msg: 'Article does not exist!' });
+        };
+    })
+
+
 };

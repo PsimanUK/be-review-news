@@ -5,7 +5,7 @@ exports.sendUserByUsername = (req, res, next) => {
 
     fetchUserByUsername(username)
         .then((user) => {
-            console.log(user, '<-- user returned by fetch')
+
             if (user.length > 0) {
                 user = user[0];
 
