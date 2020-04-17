@@ -2,10 +2,18 @@ const { fetchAllArticles, fetchArticleById, updateArticleVotes, insertComment, f
 
 exports.sendAllArticles = (req, res, next) => {
     console.log('Using sendAllArticles...');
+
     const { sort_by, order, author, topic } = req.query;
+
     fetchAllArticles({ sort_by, order, author, topic })
         .then((articles) => {
-            res.status(200).send({ articles })
+
+            if (articles.length > 0) {
+                res.status(200).send({ articles })
+            } else {
+                return Promise.reject({ status: 404, msg: `Cannot find any articles based on those search parameters!` });
+            }
+
         })
         .catch(next);
 };
