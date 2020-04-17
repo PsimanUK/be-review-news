@@ -2,7 +2,8 @@ const { fetchAllArticles, fetchArticleById, updateArticleVotes, insertComment, f
 
 exports.sendAllArticles = (req, res, next) => {
     console.log('Using sendAllArticles...');
-    fetchAllArticles()
+    const { sort_by, order, author, topic } = req.query;
+    fetchAllArticles({ sort_by, order, author, topic })
         .then((articles) => {
             res.status(200).send({ articles })
         })

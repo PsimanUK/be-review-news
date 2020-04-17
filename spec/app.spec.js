@@ -327,7 +327,7 @@ describe('app', () => {
         });
         describe('/api/articles', () => {
             describe('GET', () => {
-                it.only('returns an array of article objects with the required keys', () => {
+                it('returns an array of article objects with the required keys', () => {
                     return request(app)
                         .get('/api/articles')
                         .expect(200)
@@ -335,6 +335,58 @@ describe('app', () => {
                             const { articles } = res.body;
                             articles.forEach((article) => {
                                 expect(article).to.have.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+                            });
+                        });
+                });
+                it('returns an array of article objects sorted by created_at in ascending order', () => {
+                    return request(app)
+                        .get('/api/articles')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            expect(articles).to.be.ascendingBy('created_at');
+
+                        });
+                });
+                it('returns an array of article objects sorted by passed column in ascending order', () => {
+                    return request(app)
+                        .get('/api/articles?sort_by=title')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            expect(articles).to.be.ascendingBy('title');
+
+                        });
+                });
+                it('returns an array of article objects ordered by passed direction', () => {
+                    return request(app)
+                        .get('/api/articles?sort_by=title&order=desc')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            expect(articles).to.be.descendingBy('title');
+
+                        });
+                });
+                it('returns an array of article objects with only the passed author value', () => {
+                    return request(app)
+                        .get('/api/articles?author=lurker')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            articles.forEach((article) => {
+                                expect(article.author).to.deep.equal('lurker');
+                            });
+                        });
+                });
+                it.only('returns an array of article objects with only the passed topic value', () => {
+                    return request(app)
+                        .get('/api/articles?topic=cats')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            articles.forEach((article) => {
+                                expect(article.topic).to.deep.equal('cats');
                             });
                         });
                 });

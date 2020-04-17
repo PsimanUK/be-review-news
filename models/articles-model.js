@@ -1,12 +1,20 @@
 const connection = require('../connection');
 
-exports.fetchAllArticles = () => {
+exports.fetchAllArticles = ({ sort_by, order, author, topic }) => {
     console.log('Using fetchAllArticles...');
+
     return connection('articles')
         .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes')
         .count('comment_id as comment_count')
         .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-        .groupBy('articles.article_id');
+        .groupBy('articles.article_id')
+        .orderBy(sort_by || 'articles.created_at', order || 'asc')
+        .modify((authorQuery) => {
+            if (author !== undefined) authorQuery.where('articles.author', '=', author)
+        })
+        .modify((topicQuery) => {
+            if (topic !== undefined) topicQuery.where('articles.topic', '=', topic)
+        });
 };
 
 exports.fetchArticleById = (articleId) => {
