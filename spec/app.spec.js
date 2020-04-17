@@ -505,7 +505,34 @@ describe('app', () => {
                         });
                 });
             });
+            describe('DELETE', () => {
+                it('returns a 204 when passed a comment to delete', () => {
+                    return request(app)
+                        .delete('/api/comments/1')
+                        .expect(204)
+                });
+                it('returns a 204 when passed a comment to delete and the table no longer contains the comment', () => {
+                    return request(app)
+                        .delete('/api/comments/1')
+                        .expect(204)
+                        .then(() => {
+                            return connection('comments')
+                                .select('*')
+                                .then((comments) => {
+                                    comments.forEach((comment) => {
+                                        expect(comment.comment_id).to.not.equal(1)
+                                    })
 
+
+                                });
+                        });
+                });
+                it('returns a 204 when passed a non-existant comment_id to delete', () => {
+                    return request(app)
+                        .delete('/api/comments/1414')
+                        .expect(204)
+                });
+            });
         });
     });
     describe('INVALID PATHS', () => {

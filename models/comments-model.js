@@ -12,3 +12,10 @@ exports.updateCommentVotes = (commentId, votes) => {
             return res[0]
         });
 };
+
+exports.deleteComment = (commentId) => {
+
+    return connection('comments')
+        .where('comment_id', '=', commentId)
+        .delete('*')
+};

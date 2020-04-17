@@ -1,4 +1,4 @@
-const { updateCommentVotes } = require('../models/comments-model');
+const { updateCommentVotes, deleteComment } = require('../models/comments-model');
 
 exports.sendUpdatedComment = (req, res, next) => {
     const { comment_id } = req.params;
@@ -14,4 +14,13 @@ exports.sendUpdatedComment = (req, res, next) => {
 
         })
         .catch(next);
+};
+
+exports.removeComment = (req, res, next) => {
+    const { comment_id } = req.params;
+
+    deleteComment(comment_id)
+        .then(() => {
+            res.status(204).send();
+        });
 };
