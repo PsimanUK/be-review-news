@@ -22,5 +22,6 @@ exports.removeComment = (req, res, next) => {
     deleteComment(comment_id)
         .then(() => {
             res.status(204).send();
-        });
+        })
+        .catch(next);
 };

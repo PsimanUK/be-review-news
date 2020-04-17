@@ -31,6 +31,11 @@ exports.handle500s = (err, req, res, next) => {
 
 /////////  Non-error handling middleware that can handle errors  /////////////////
 
+
 exports.handleInvalidPaths = (req, res, next) => {
     res.status(404).send({ msg: 'Invalid Path!' });
+};
+
+exports.handle405s = (req, res) => {
+    res.status(405).send({ msg: 'Method not allowed' });
 };

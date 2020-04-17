@@ -532,6 +532,7 @@ describe('app', () => {
                         .delete('/api/comments/1414')
                         .expect(204)
                 });
+
             });
         });
     });
@@ -545,5 +546,48 @@ describe('app', () => {
                     expect(msg).to.deep.equal('Invalid Path!');
                 });
         });
+    });
+    describe('INVALID METHODS', () => {
+        it('returns a 405 when an invalid request is made to the api/topics endpoint', () => {
+            return request(app)
+                .post('/api/topics')
+                .send({ slug: 'dogs', description: 'Not cats' })
+                .expect(405)
+
+        });
+        it('returns a 405 when an invalid request is made to the api/users/:username endpoint', () => {
+            return request(app)
+                .post('/api/users/1')
+                .send({ slug: 'dogs', description: 'Not cats' })
+                .expect(405)
+
+        });
+        it('returns a 405 when an invalid request is made to the api/comments/:comment_id endpoint', () => {
+            return request(app)
+                .get('/api/comments/1')
+                .expect(405)
+
+        });
+        it('returns a 405 when an invalid request is made to the api/articles endpoint', () => {
+            return request(app)
+                .post('/api/articles')
+                .send({ article_id: 1, body: 'This is a great article!' })
+                .expect(405)
+
+        });
+        it('returns a 405 when an invalid request is made to the api/articles/:article_id endpoint', () => {
+            return request(app)
+                .post('/api/articles/1')
+                .send({ article_id: 1, body: 'This is a great article!' })
+                .expect(405)
+
+        });
+        it('returns a 405 when an invalid request is made to the api/articles/commments endpoint', () => {
+            return request(app)
+                .delete('/api/articles/comments')
+                .expect(405)
+
+        });
+
     });
 });
