@@ -1,6 +1,6 @@
 node_modules
-knexfile.js
 migrations-and-seeding.md
 group-by-and-aggregate-functions.md
 README.md
 test.js
+knexfile.js
