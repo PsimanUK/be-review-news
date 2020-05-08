@@ -39,6 +39,19 @@ describe('app', () => {
                         });
                 });
             });
+            describe('POST', () => {
+                it('creates a new topic when passed a topic_slug', () => {
+                    return request(app)
+                        .post('/api/topics')
+                        .send({ slug: 'cars', description: 'Things with four wheels that can go fast!' })
+                        .expect(201)
+                        .then((res) => {
+                            const { topic } = res.body;
+                            expect(topic.slug).to.deep.equal('cars')
+                            expect(topic.description).to.deep.equal('Things with four wheels that can go fast!')
+                        })
+                });
+            });
         });
         describe('/user/:username', () => {
             describe('GET', () => {
