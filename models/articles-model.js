@@ -3,7 +3,7 @@ const connection = require('../connection');
 exports.fetchAllArticles = (sort_by, order, author, topic) => {
 
     return connection('articles')
-        .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes')
+        .select('articles.author', 'title', 'articles.article_id', 'topic', 'articles.created_at', 'articles.votes', 'articles.view_count')
         .count('comment_id as comment_count')
         .leftJoin('comments', 'articles.article_id', 'comments.article_id')
         .groupBy('articles.article_id')
