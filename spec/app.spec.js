@@ -52,6 +52,24 @@ describe('app', () => {
                         })
                 });
             });
+            describe('DELETE', () => {
+                it.only('deletes a new topic when passed a topic_slug', () => {
+                    return request(app)
+                        .delete('/api/topics/coding')
+                        .expect(204)
+                        .then(() => {
+                            return connection('topics')
+                                .select('*')
+                                .then((topics) => {
+                                    topics.forEach((topic) => {
+                                        expect(topic.slug).to.not.equal('coding')
+                                    })
+
+
+                                });
+                        })
+                });
+            });
         });
         describe('/user/:username', () => {
             describe('GET', () => {
@@ -365,7 +383,7 @@ describe('app', () => {
                         .then((res) => {
                             const { articles } = res.body;
                             articles.forEach((article) => {
-                                expect(article).to.have.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'comment_count');
+                                expect(article).to.have.keys('author', 'title', 'article_id', 'topic', 'created_at', 'votes', 'view_count', 'comment_count');
                             });
                         });
                 });
@@ -583,13 +601,6 @@ describe('app', () => {
         });
     });
     describe('INVALID METHODS', () => {
-        it('returns a 405 when an invalid request is made to the api/topics endpoint', () => {
-            return request(app)
-                .post('/api/topics')
-                .send({ slug: 'dogs', description: 'Not cats' })
-                .expect(405)
-
-        });
         it('returns a 405 when an invalid request is made to the api/users/:username endpoint', () => {
             return request(app)
                 .post('/api/users/1')
