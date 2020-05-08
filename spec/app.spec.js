@@ -80,7 +80,7 @@ describe('app', () => {
                         .expect(200)
                         .then((res) => {
                             const { article } = res.body;
-                            expect(article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'comment_count');
+                            expect(article).to.have.keys('author', 'title', 'article_id', 'body', 'topic', 'created_at', 'votes', 'view_count', 'comment_count');
                         });
                 });
                 it('returns an object with a comment count greater than 1', () => {
@@ -132,6 +132,16 @@ describe('app', () => {
                             expect(votes).to.deep.equal(50);
                         });
                 });
+                it('returns an article with the view_count property increased when passed viewed object', () => {
+                    return request(app)
+                        .patch('/api/articles/1')
+                        .send({ viewed: '1' })
+                        .expect(200)
+                        .then((res) => {
+                            const { view_count } = res.body.article;
+                            expect(view_count).to.deep.equal(1);
+                        });
+                });
                 it('returns a 404 when trying to update a non-existant article', () => {
                     return request(app)
                         .patch('/api/articles/1414')
@@ -157,6 +167,7 @@ describe('app', () => {
                                 body: 'I find this existence challenging',
                                 created_at: "2018-11-15T12:21:54.171Z",
                                 votes: 100,
+                                view_count: 0
                             });
                         });
                 });

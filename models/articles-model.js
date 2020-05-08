@@ -18,7 +18,7 @@ exports.fetchAllArticles = (sort_by, order, author, topic) => {
 
 exports.fetchArticleById = (articleId) => {
     return connection('articles')
-        .select('articles.author', 'articles.title', 'articles.article_id', 'articles.body', 'articles.topic', 'articles.created_at', 'articles.votes')
+        .select('articles.author', 'articles.title', 'articles.article_id', 'articles.body', 'articles.topic', 'articles.created_at', 'articles.votes', 'articles.view_count')
         .count('comment_id as comment_count')
         .leftJoin('comments', 'articles.article_id', 'comments.article_id')
         .groupBy('articles.article_id')
@@ -36,15 +36,20 @@ exports.articleExists = (articleId) => {
         })
 };
 
-exports.updateArticleVotes = (articleId, votes) => {
+exports.updateArticleById = (articleId, votes, view_count) => {
     return this.articleExists(articleId).then((res) => {
 
-        if (res && votes !== null) {
+        if (res && votes !== null && view_count === null) {
             return connection('articles')
                 .where('article_id', '=', articleId)
                 .increment('votes', votes)
                 .returning('*')
-        } else if (votes === null) {
+        } else if (res && votes === null && view_count !== null) {
+            return connection('articles')
+                .where('article_id', '=', articleId)
+                .increment('view_count', view_count)
+                .returning('*')
+        } else if (votes === null && view_count === null) {
             return connection('articles')
                 .where('article_id', '=', articleId)
                 .returning('*')
@@ -52,6 +57,4 @@ exports.updateArticleVotes = (articleId, votes) => {
             return Promise.reject({ status: 404, msg: 'Article does not exist!' });
         };
     })
-
-
 };
