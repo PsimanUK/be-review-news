@@ -30,16 +30,18 @@ exports.topicExists = (topic_slug) => {
         })
 };
 
-exports.deleteTopic = (topic_slug) => {
-    console.log(`${topic_slug} is the topic slug in deleteTopic`)
-    return this.topicExists(topic_slug).then((res) => {
-        if (res) {
-            console.log('Connecting to delete topic..')
-            return connection('topics')
-                .where('slug', '=', topic_slug)
-                .delete('*')
-        } else {
-            return Promise.reject({ status: 404, msg: 'Topic does not exist!' })
-        }
-    })
-};
+// DLETEING TOPICS - NOT IMPLEMENTED YET
+
+// exports.deleteTopic = (topic_slug) => {
+//     console.log(`${topic_slug} is the topic slug in deleteTopic`)
+//     return this.topicExists(topic_slug).then((res) => {
+//         if (res) {
+//             console.log('Connecting to delete topic..')
+//             return connection('topics')
+//                 .where('slug', '=', topic_slug)
+//                 .delete('*')
+//         } else {
+//             return Promise.reject({ status: 404, msg: 'Topic does not exist!' })
+//         }
+//     })
+// };

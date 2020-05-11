@@ -52,24 +52,24 @@ describe('app', () => {
                         })
                 });
             });
-            describe('DELETE', () => {
-                it.only('deletes a new topic when passed a topic_slug', () => {
-                    return request(app)
-                        .delete('/api/topics/coding')
-                        .expect(204)
-                        .then(() => {
-                            return connection('topics')
-                                .select('*')
-                                .then((topics) => {
-                                    topics.forEach((topic) => {
-                                        expect(topic.slug).to.not.equal('coding')
-                                    })
+            // describe('DELETE', () => {
+            //     it.only('deletes a new topic when passed a topic_slug', () => {
+            //         return request(app)
+            //             .delete('/api/topics/coding')
+            //             .expect(204)
+            //             .then(() => {
+            //                 return connection('topics')
+            //                     .select('*')
+            //                     .then((topics) => {
+            //                         topics.forEach((topic) => {
+            //                             expect(topic.slug).to.not.equal('coding')
+            //                         })
 
 
-                                });
-                        })
-                });
-            });
+            //                     });
+            //             })
+            //     });
+            // });
         });
         describe('/user/:username', () => {
             describe('GET', () => {
@@ -482,6 +482,15 @@ describe('app', () => {
                         .then((res) => {
                             const { articles } = res.body;
                             expect(articles.length).to.deep.equal(12);
+                        });
+                });
+                it('returns a 200 and a limited number of articles when passed a limit value', () => {
+                    return request(app)
+                        .get('/api/articles?limit=5')
+                        .expect(200)
+                        .then((res) => {
+                            const { articles } = res.body;
+                            expect(articles.length).to.deep.equal(5);
                         });
                 });
             });

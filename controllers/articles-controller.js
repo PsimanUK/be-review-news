@@ -2,9 +2,9 @@ const { fetchAllArticles, fetchArticleById, updateArticleById } = require('../mo
 
 exports.sendAllArticles = (req, res, next) => {
 
-    const { sort_by, order, author, topic } = req.query;
+    const { sort_by, order, author, topic, limit } = req.query;
 
-    fetchAllArticles(sort_by, order, author, topic)
+    fetchAllArticles(sort_by, order, author, topic, limit)
         .then((articles) => {
             res.status(200).send({ articles });
         })
